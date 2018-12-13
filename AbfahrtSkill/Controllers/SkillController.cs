@@ -34,9 +34,10 @@ namespace AbfahrtSkill.Controllers
         }
 
         [HttpPost]
-        public async Task<SkillResponse> Post([FromBody]SkillRequest input)
+        public async Task<SkillResponse> Post([FromBody]SkillRequest input, string rbl)
         {
-            var tasks = (new[] { "1023", "1040", "2596", "2601" }).Select(abfahrtService.GetAsync);
+
+            var tasks = (rbl.Split('-')).Select(abfahrtService.GetAsync);
             var abfahrten = (await Task.WhenAll(tasks)).SelectMany(a => a);
             var abfFormat = string.Join(", ", abfahrten.Select(v => $"{v.Linie} in Richtung {v.Richtung} in {Und(v.Countdowns, s => s.ToString())}"));
             return ResponseBuilder.Tell($"Die aktuellen Abfahrten: {abfFormat}.");
